@@ -1,20 +1,21 @@
 // /services/priceService.ts
+import { PlattsPoint } from "@/components/PriceChartV2";
 import { supabase } from "@/lib/supabaseClient";
 
-export type Price = {
-  id: string;
-  date: string;
-  wti_usd: number;
-  brent_crude_usd: number;
-  platts_singapore_95ron_usd: number;
-  platts_singapore_diesel_usd: number;
-  ty_gia_usd_vnd: number;
-  source: string;
-  created_at: string;
-};
+export async function getPlattsPrices(startDate: Date, endDate: Date): Promise<PlattsPoint[]> {
+  const { data, error } = await supabase
+    .from("price")
+    .select("date, platts_singapore_diesel_usd")
+    .gte("date", startDate.toISOString())
+    .lte("date", endDate.toISOString())
+    .order("date", { ascending: true });
 
-export async function getPrices(): Promise<Price[]> {
-  const { data, error } = await supabase.from("price").select("*").order("date", { ascending: true });
   if (error) throw error;
-  return data as Price[];
+
+  return data.map((item) => {
+    return {
+      timestamp: new Date(item.date).getTime() / 1000 + 12 * 3600,
+      price: item.platts_singapore_diesel_usd,
+    };
+  });
 }

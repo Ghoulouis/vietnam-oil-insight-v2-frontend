@@ -104,7 +104,7 @@ function ChartTooltip({
   return (
     <div className="bg-card border border-border p-4 text-xs font-mono shadow-xl min-w-60">
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">
-        {getTickFormat(Number(label))}
+        {getTickFormatFull(Number(label))}
       </div>
       <div className="space-y-2">
         <div className="flex justify-between gap-4">
@@ -164,6 +164,36 @@ function CustomLegend() {
   );
 }
 
+function getTickFormat(value: number) {
+  const date = new Date(value * 1000);
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  if (hour === 0 && minute === 0) {
+    return `${date.getDate()}/${date.getMonth() + 1}`;
+  }
+  return date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+function getTickFormatFull(value: number) {
+  const date = new Date(value * 1000);
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  if (hour === 0 && minute === 0) {
+    return `${date.getDate()}/${date.getMonth() + 1}`;
+  }
+  return date.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
 export function PriceChartV2({
   wtiData,
   plattsData,
@@ -203,14 +233,22 @@ export function PriceChartV2({
     };
   });
 
+  // console.log("Merged chart data:", merged);
+
   // Y axis domain: USD/bbl
   const usdValues = merged.flatMap((d) => {
     const vals = [d.wtiHigh, d.wtiLow];
-    if (d.platts != null) vals.push(d.platts);
+    // if (d.platts != null) vals.push(d.platts);
     return vals;
   });
+
+  const plattsValues = merged.flatMap((d) => (d.platts != null ? [d.platts] : []));
+
   const usdMin = Math.floor(Math.min(...usdValues) - 2);
   const usdMax = Math.ceil(Math.max(...usdValues) + 2);
+
+  const plattsMin = Math.floor(Math.min(...plattsValues) - 2);
+  const plattsMax = Math.ceil(Math.max(...plattsValues) + 2);
 
   return (
     <div className="w-full">
@@ -242,6 +280,31 @@ export function PriceChartV2({
                 value: "USD / bbl",
                 angle: -90,
                 position: "insideLeft",
+                offset: 14,
+                style: {
+                  fontSize: 9,
+                  fontFamily: "JetBrains Mono",
+                  fill: "var(--cyan-glow)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.15em",
+                },
+              }}
+            />
+
+            <YAxis
+              yAxisId="platts"
+              orientation="right"
+              domain={[plattsMin, plattsMax]}
+              stroke="oklch(0.55 0.01 270)"
+              tick={{ fontSize: 10, fontFamily: "JetBrains Mono", fill: "oklch(0.55 0.01 270)" }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v: number) => `$${v}`}
+              width={52}
+              label={{
+                value: "USD / bbl",
+                angle: -90,
+                position: "insideRight",
                 offset: 14,
                 style: {
                   fontSize: 9,
@@ -288,14 +351,14 @@ export function PriceChartV2({
 
             {/* Platts confirmed: solid amber */}
             <Line
-              yAxisId="usd"
+              yAxisId="platts"
               type="monotone"
               dataKey="plattsConfirmedLine"
               stroke="var(--amber-glow)"
               strokeWidth={2}
-              dot={false}
+              dot={true}
               activeDot={{ r: 4, fill: "var(--amber-glow)", stroke: "var(--obsidian)" }}
-              connectNulls={false}
+              connectNulls={true}
               isAnimationActive={false}
             />
 
@@ -343,18 +406,4 @@ export function PriceChartV2({
       </div>
     </div>
   );
-}
-
-function getTickFormat(value: number) {
-  const date = new Date(value * 1000);
-  const hour = date.getHours();
-  const minute = date.getMinutes();
-  if (hour === 0 && minute === 0) {
-    return `${date.getDate()}/${date.getMonth() + 1}`;
-  }
-  return date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 }
