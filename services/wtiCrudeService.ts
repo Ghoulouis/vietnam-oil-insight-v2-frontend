@@ -7,6 +7,7 @@ type YahooSymbol = "BZ=F" | "CL=F";
 interface YahooChartResponse {
   chart: {
     result: Array<{
+      timestamp: number[];
       indicators: {
         quote: Array<{
           close: number[];
@@ -33,8 +34,13 @@ async function fetchYahooDayPrice(symbol: YahooSymbol, startDate: Date, endDate:
       },
     );
 
-    const timestamps = data.chart.result[0].timestamp;
-    const quote = data.chart.result[0].indicators.quote[0];
+    const result = data.chart?.result?.[0];
+    if (!result) return null;
+
+    const timestamps = result.timestamp;
+    if (!timestamps) return null;
+
+    const quote = result.indicators.quote[0];
 
     return timestamps
       .map((t, i) => ({
