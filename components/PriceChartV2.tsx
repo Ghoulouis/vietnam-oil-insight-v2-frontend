@@ -247,8 +247,8 @@ export function PriceChartV2({
   const usdMin = Math.floor(Math.min(...usdValues) - 2);
   const usdMax = Math.ceil(Math.max(...usdValues) + 2);
 
-  const plattsMin = Math.floor(Math.min(...plattsValues) - 2);
-  const plattsMax = Math.ceil(Math.max(...plattsValues) + 2);
+  const plattsMin = Math.floor(Math.min(...plattsValues) - 10);
+  const plattsMax = Math.ceil(Math.max(...plattsValues) + 10);
 
   return (
     <div className="w-full">
