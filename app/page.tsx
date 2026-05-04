@@ -2,6 +2,8 @@ import { PriceChartV2, type WTIPoint, type PlattsPoint, type PlattsPredicPoint }
 import { getPlattsPrices } from "@/services/priceService";
 import { fetchYahooDayPrice } from "@/services/wtiCrudeService";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const endDate = new Date();
   endDate.setMinutes(0, 0);
