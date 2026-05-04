@@ -1,4 +1,3 @@
-import { PriceChart, type ChartPoint } from "@/components/PriceChart";
 import { PriceChartV2, type WTIPoint, type PlattsPoint, type PlattsPredicPoint } from "@/components/PriceChartV2";
 import { getPlattsPrices } from "@/services/priceService";
 import { fetchYahooDayPrice } from "@/services/wtiCrudeService";
